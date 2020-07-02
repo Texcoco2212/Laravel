@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\News;
 use App\History;
 use Carbon\Carbon;
-use Storage; 
+
 
 class NewsController extends Controller
 {
@@ -63,8 +63,8 @@ class NewsController extends Controller
 
       // News Modelからデータを取得する
       $news = News::find($request->id);
-
-
+      if (empty($news)) {abort(404);    
+      }
       return view('admin.news.edit', ['news_form' => $news]);
   }
 
@@ -78,19 +78,16 @@ class NewsController extends Controller
         $this->validate($request, News::$rules);
         $news = News::find($request->id);
         $news_form = $request->all();
-        if ($request->remove == 'true') {
-            $news_form['image_path'] = null;
-        } elseif ($request->file('image')) {
-            $path = $request->file('image')->store('public/image');
-            $news_form['image_path'] = basename($path);
-        } else {
-            $news_form['image_path'] = $news->image_path;
-        }
-
-        unset($news_form['_token']);
+        if(isset($news_form['image'])) {
+        $path = $request->file('image')->store('public/image');
+        $news->image_path = basename($path);
         unset($news_form['image']);
+
+        }elseif (isset($request->remove)) {
+        $news->image_path = null;   
+        unset($news_form['_token']);
         unset($news_form['remove']);
-        
+        }
         $news->fill($news_form)->save();
 
         // 以下を追記

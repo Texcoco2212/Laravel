@@ -5,88 +5,57 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-use App\News;
 
+use App\Profile;
 
-class NewsController extends Controller
+use App\ProfileHistory;
+
+use Carbon\Carbon;
+
+class ProfileController extends Controller
 {
-  public function add()
-  {
-      return view('admin.news.create');
-  }
+    //
+    public function add()
+    {
+        return view('admin.profile.create');
+    }
 
-  public function create(Request $request)
-  {
+    public function create(Request $request)
+    {
+        $this->validate($request, Profile::$rules);
 
-      // Varidationを行う
-      $this->validate($request, News::$rules);
+        $profiles = new Profile;
+        $form = $request->all();
+        
+        unset($form['_token']);
+        
+        $profiles->fill($form);
+        $profiles->save();
+        
+        return redirect('admin/profile/create');
+    }
 
-      $news = new News;
-      $form = $request->all();
+    public function edit(Request $request)
+    {
+        $profiles = Profile::find($request->id);
+        return view('admin.profile.edit', ['profiles_form'=> $profiles]);
+    }
 
-      // formに画像があれば、保存する
-      if ($form['image']) {
-        $path = $request->file('image')->store('public/image');
-        $news->image_path = basename($path);
-      } else {
-          $news->image_path = null;
-      }
+    public function update(Request $request)
+    {
+        $this->validate($request, Profile::$rules);
+        $profiles = Profile::find($request->id);
+        $profiles_form = $request->all();
+        unset($profiles_form['_token']);
+        
+        $profiles->fill($profiles_form)->save();
+        
+        $history = new ProfileHistory;
+        $history->profile_id = $profiles->id;
+        $history->edited_at = Carbon::now();
+        $history->save();
 
-      unset($form['_token']);
-      unset($form['image']);
-      // データベースに保存する
-      $news->fill($form);
-      $news->save();
-
-      return redirect('admin/news/create');
-  }
-
-  public function index(Request $request)
-  {
-      $cond_title = $request->cond_title;
-      if ($cond_title != '') {
-          $posts = News::where('title', $cond_title)->get();
-      } else {
-          $posts = News::all();
-      }
-      return view('admin.news.index', ['posts' => $posts, 'cond_title' => $cond_title]);
-  }
-
-
-  public function edit(Request $request)
-  {
-      // News Modelからデータを取得する
-      $news = News::find($request->id);
-
-      return view('admin.news.edit', ['news_form' => $news]);
-  }
-
-
-  public function update(Request $request)
-  {
-      // Validationをかける
-      $this->validate($request, News::$rules);
-      // News Modelからデータを取得する
-      $news = News::find($request->id);
-      // 送信されてきたフォームデータを格納する
-      $news_form = $request->all();
-      unset($news_form['_token']);
-
-      // 該当するデータを上書きして保存する
-      $news->fill($news_form)->save();
-
-      return redirect('admin/news/');
-  }
-
-  // 以下を追記　　
-  public function delete(Request $request)
-  {
-      // 該当するNews Modelを取得
-      $news = News::find($request->id);
-      // 削除する
-      $news->delete();
-      return redirect('admin/news/');
-  }  
-
-
+        
+        return redirect('admin/profile/edit?id=' . $profiles->id);
+    }
 }

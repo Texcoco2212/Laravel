@@ -63,7 +63,7 @@ class NewsController extends Controller
 
       // News Modelからデータを取得する
       $news = News::find($request->id);
-}
+
 
       return view('admin.news.edit', ['news_form' => $news]);
   }

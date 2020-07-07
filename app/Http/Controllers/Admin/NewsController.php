@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\News;
 use App\History;
 use Carbon\Carbon;
-
+use Storage; //追加
 
 class NewsController extends Controller
 {
@@ -78,16 +78,21 @@ class NewsController extends Controller
         $this->validate($request, News::$rules);
         $news = News::find($request->id);
         $news_form = $request->all();
-        if(isset($news_form['image'])) {
-        $path = $request->file('image')->store('public/image');
-        $news->image_path = basename($path);
-        unset($news_form['image']);
+       if ($request->remove == 'true'){
+            $news_form['image_path'] = null;
+        } 
+        
+        elseif ($request->file('image')) {
+           $path = Storage::disk('s3')->putFile('/',$form['image'],'public');
+           $news->image_path = Storage::disk('s3')->url($path);
 
-        }elseif (isset($request->remove)) {
-        $news->image_path = null;   
-        unset($news_form['_token']);
-        unset($news_form['remove']);
+        } else {
+            $news_form['image_path'] = $news->image_path;
         }
+
+        unset($news_form['_token']);
+        unset($news_form['image']);
+        unset($news_form['remove']);
         $news->fill($news_form)->save();
 
         // 以下を追記

@@ -1,5 +1,4 @@
 @extends('layouts.admin')
-@section('title', '登録済みニュースの一覧')
 
 @section('content')
     <div class="container">

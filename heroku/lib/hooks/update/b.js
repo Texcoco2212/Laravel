@@ -44,3 +44,4 @@ exports.brewHook = async function () {
     brew(['uninstall', 'heroku']);
     brew(['install', 'heroku/brew/heroku']);
 };
+

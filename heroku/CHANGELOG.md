@@ -10,7 +10,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-
 # [7.45.0](https://github.com/heroku/cli/compare/v7.44.0...v7.45.0) (2020-10-07)
 
 **Note:** Version bump only for package heroku

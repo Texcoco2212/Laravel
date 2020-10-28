@@ -113,5 +113,4 @@ class NewsController extends Controller
       return redirect('admin/news/');
   }  
 
-
 }

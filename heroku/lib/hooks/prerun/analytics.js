@@ -6,3 +6,4 @@ exports.analytics = async function (options) {
     const analytics = new analytics_1.default(this.config);
     await analytics.record(options);
 };
+

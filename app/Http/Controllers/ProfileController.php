@@ -17,3 +17,4 @@ public function index(Request $request)
         return view('profile.index', [ 'posts' => $posts]);
     }
 }
+
